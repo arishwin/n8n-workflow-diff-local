@@ -89,16 +89,6 @@ h2 {
   text-transform: uppercase;
 }
 
-.privacy-pill {
-  border: 1px solid #14532d;
-  border-radius: 999px;
-  background: #052e1a;
-  color: #bbf7d0;
-  font-size: 0.85rem;
-  padding: 0.45rem 0.75rem;
-  white-space: nowrap;
-}
-
 .app-shell {
   min-height: calc(100vh - 73px);
 }
@@ -685,7 +675,4 @@ pre {
     min-height: 380px;
   }
 
-  .privacy-pill {
-    white-space: normal;
-  }
 }
