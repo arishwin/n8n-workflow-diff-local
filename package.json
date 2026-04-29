@@ -1,0 +1,10 @@
+{
+  "name": "n8n-workflow-diff-local",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/diff.test.js && node tests/ui-helpers.test.js",
+    "serve": "python3 -m http.server 4174"
+  }
+}

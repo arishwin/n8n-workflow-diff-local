@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <title>Local n8n Workflow Diff</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./styles.css?v=overlay-graph-ux">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Local-only tool</p>
+        <h1>n8n Workflow Diff</h1>
+      </div>
+      <div class="privacy-pill">No analytics - No backend - No network</div>
+    </header>
+
+    <main class="app-shell">
+      <section id="loader-view" class="loader-view">
+        <div class="intro">
+          <h2>Compare two exported workflow JSON files</h2>
+          <p>Files are read by your browser and never uploaded. API keys are intentionally unsupported in this local clone.</p>
+        </div>
+
+        <div class="load-grid">
+          <article class="load-panel" data-side="old">
+            <div class="panel-heading">
+              <span class="side old">Old</span>
+              <strong>Before version</strong>
+            </div>
+            <label class="drop-zone" for="old-file">
+              <input id="old-file" type="file" accept=".json,application/json">
+              <span class="drop-title">Choose JSON file</span>
+              <span class="drop-subtitle" id="old-file-status">or drag and drop here</span>
+            </label>
+            <textarea id="old-text" spellcheck="false" placeholder="Paste old workflow JSON here"></textarea>
+            <div class="actions">
+              <button id="old-parse" type="button">Parse pasted JSON</button>
+              <button id="old-clear" type="button" class="secondary">Clear</button>
+            </div>
+            <p class="message" id="old-message"></p>
+          </article>
+
+          <article class="load-panel" data-side="new">
+            <div class="panel-heading">
+              <span class="side new">New</span>
+              <strong>After version</strong>
+            </div>
+            <label class="drop-zone" for="new-file">
+              <input id="new-file" type="file" accept=".json,application/json">
+              <span class="drop-title">Choose JSON file</span>
+              <span class="drop-subtitle" id="new-file-status">or drag and drop here</span>
+            </label>
+            <textarea id="new-text" spellcheck="false" placeholder="Paste new workflow JSON here"></textarea>
+            <div class="actions">
+              <button id="new-parse" type="button">Parse pasted JSON</button>
+              <button id="new-clear" type="button" class="secondary">Clear</button>
+            </div>
+            <p class="message" id="new-message"></p>
+          </article>
+        </div>
+      </section>
+
+      <section id="diff-view" class="diff-view hidden">
+        <div class="diff-header">
+          <div>
+            <p class="eyebrow">Comparison</p>
+            <h2 id="diff-title"></h2>
+          </div>
+          <div class="header-actions">
+            <button id="export-html" type="button">Export HTML</button>
+            <button id="copy-share-url" type="button" class="secondary">Copy share URL</button>
+            <button id="new-comparison" type="button" class="secondary">New comparison</button>
+          </div>
+        </div>
+        <p id="share-message" class="share-message"></p>
+
+        <div class="summary-grid" id="summary-grid"></div>
+
+        <section class="graph-panel">
+          <div class="section-heading">
+            <h3>Workflow Graph</h3>
+            <div class="graph-toolbar" aria-label="Graph zoom controls">
+              <button id="graph-zoom-out" type="button" class="secondary" title="Zoom out">-</button>
+              <span id="graph-zoom-label">100%</span>
+              <button id="graph-zoom-in" type="button" class="secondary" title="Zoom in">+</button>
+              <button id="graph-zoom-reset" type="button" class="secondary">Reset</button>
+            </div>
+          </div>
+          <div class="graph-legend" aria-label="Graph status legend">
+            <span><i class="legend-dot added"></i>Added</span>
+            <span><i class="legend-dot removed"></i>Removed</span>
+            <span><i class="legend-dot modified"></i>Modified</span>
+            <span><i class="legend-dot renamed"></i>Renamed</span>
+            <span><i class="legend-dot credentials-only"></i>Credentials only</span>
+            <span><i class="legend-dot unchanged"></i>Unchanged</span>
+          </div>
+          <p class="graph-hint">Drag to pan. Use Ctrl + wheel or the controls to zoom. Click a node to inspect its changes.</p>
+          <div id="graph-canvas" class="graph-canvas"></div>
+        </section>
+
+        <aside class="node-strip" aria-label="Workflow node list">
+          <div class="search-row">
+            <input id="search" type="search" placeholder="Search nodes">
+            <select id="status-filter" aria-label="Status filter">
+              <option value="all">All statuses</option>
+              <option value="changed">Changed only</option>
+              <option value="added">Added</option>
+              <option value="removed">Removed</option>
+              <option value="modified">Modified</option>
+              <option value="renamed">Renamed</option>
+              <option value="credentials-only">Credentials only</option>
+              <option value="unchanged">Unchanged</option>
+            </select>
+          </div>
+          <div id="node-list" class="node-list"></div>
+        </aside>
+
+        <section class="connections">
+          <div class="section-heading">
+            <h3>Connection Changes</h3>
+            <span id="connection-count"></span>
+          </div>
+          <div id="connection-list" class="connection-list"></div>
+        </section>
+
+        <div id="detail-modal" class="detail-modal hidden" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+          <div class="detail-backdrop" id="detail-backdrop"></div>
+          <article class="detail-dialog">
+            <div class="detail-dialog-header">
+              <div>
+                <p class="eyebrow">Node details</p>
+                <h3 id="detail-title">Node details</h3>
+              </div>
+              <button id="detail-close" type="button" class="secondary" aria-label="Close details">Close</button>
+            </div>
+            <div id="node-detail" class="node-detail"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/app.js?v=share-url-risk-warning"></script>
+  </body>
+</html>
